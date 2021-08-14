@@ -1,12 +1,16 @@
 /*
 Copyright 2016 German Martin (gmag11@gmail.com). All rights reserved.
+
 Redistribution and use in source and binary forms, with or without modification, are
 permitted provided that the following conditions are met :
+
 1. Redistributions of source code must retain the above copyright notice, this list of
 conditions and the following disclaimer.
+
 2. Redistributions in binary form must reproduce the above copyright notice, this list
 of conditions and the following disclaimer in the documentation and / or other materials
 provided with the distribution.
+
 THIS SOFTWARE IS PROVIDED BY <COPYRIGHT HOLDER> ''AS IS'' AND ANY EXPRESS OR IMPLIED
 WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
 FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.IN NO EVENT SHALL <COPYRIGHT HOLDER> OR
@@ -16,6 +20,7 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSE
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 The views and conclusions contained in the software and documentation are those of the
 authors and should not be interpreted as representing official policies, either expressed
 or implied, of German Martin
@@ -194,18 +199,19 @@ time_t NTPClient::getTime () {
 }
 #elif NETWORK_TYPE == NETWORK_ESP8266 || NETWORK_TYPE == NETWORK_ESP32
 void NTPClient::s_dnsFound (const char *name, const ip_addr_t *ipaddr, void *callback_arg) {
+    (void)name;
     reinterpret_cast<NTPClient*>(callback_arg)->dnsFound (ipaddr);
 }
 
 #if NETWORK_TYPE == NETWORK_ESP8266
 IPAddress getIPClass (const ip_addr_t *ipaddr) {
 
-    if (!ipaddr) {
-        DEBUGLOG ("%s - IP address not found\n", __FUNCTION__);
-        return IPAddress (0, 0, 0, 0);
-    }
+	if (!ipaddr) {
+		DEBUGLOG ("%s - IP address not found\n", __FUNCTION__);
+		return IPAddress (0, 0, 0, 0);
+	}
 
-    IPAddress ip;
+	IPAddress ip;
 #ifdef ESP8266
     ip = IPAddress (ipaddr->addr);
 #elif defined ESP32
@@ -213,6 +219,15 @@ IPAddress getIPClass (const ip_addr_t *ipaddr) {
 #endif
     DEBUGLOG ("%s - IPAddress: %s\n", __FUNCTION__, ip.toString ().c_str ());
     return ip;
+}
+
+boolean NTPClient::SyncStatus(){
+	
+	if (status==syncd) {
+		return true;
+	}
+	return false;
+	
 }
 
 void NTPClient::dnsFound (const ip_addr_t *ipaddr) {
@@ -224,7 +239,7 @@ void NTPClient::dnsFound (const ip_addr_t *ipaddr) {
     DEBUGLOG ("%s - %s\n", __FUNCTION__, ntpServerIPAddress.toString ().c_str ());
     if (ipaddr != NULL && ntpServerIPAddress != (uint32_t)(0)) {
        time_t newTime = getTime();
-       DEBUGLOG ("%s - Get time\n", __FUNCTION__);
+	   DEBUGLOG ("%s - Get time\n", __FUNCTION__);
        if (newTime) setTime(newTime);
     }
 }
@@ -239,7 +254,7 @@ void  NTPClient::processDNSTimeout () {
         onSyncEvent (invalidAddress);
 }
 
-void ICACHE_RAM_ATTR NTPClient::s_processDNSTimeout (void* arg) {
+void IRAM_ATTR NTPClient::s_processDNSTimeout (void* arg) {
     reinterpret_cast<NTPClient*>(arg)->processDNSTimeout ();
 }
 #endif
@@ -268,10 +283,10 @@ time_t NTPClient::getTime () {
         } else if (error == ERR_OK) {
             dnsStatus = DNS_SOLVED;
             ntpServerIPAddress = getIPClass (&ipaddress);
-        } else {
-            DEBUGLOG ("%s - DNS Resolution error\n", __FUNCTION__);
-            return 0;
-        }
+		} else {
+			DEBUGLOG ("%s - DNS Resolution error\n", __FUNCTION__);
+			return 0;
+		}
     }
     DEBUGLOG ("%s - DNS name IP solved: %s\n", __FUNCTION__, ntpServerIPAddress.toString ().c_str ());
     if (error == ERR_OK && dnsStatus == DNS_SOLVED) {
@@ -281,13 +296,14 @@ time_t NTPClient::getTime () {
     if (error) {
 #endif
         DEBUGLOG ("%s - Starting UDP. IP: %s\n", __FUNCTION__, ntpServerIPAddress.toString ().c_str ());
-        if (ntpServerIPAddress == INADDR_NONE) {
-            DEBUGLOG ("%s - IP address unset. Aborting.\n", __FUNCTION__);
-            //DEBUGLOG ("%s - DNS Status: %d\n", __FUNCTION__, dnsStatus);
-            return 0;
-        }
+        
+        if (ntpServerIPAddress ==  IPAddress(INADDR_NONE)) {
+			DEBUGLOG ("%s - IP address unset. Aborting.\n", __FUNCTION__);
+			//DEBUGLOG ("%s - DNS Status: %d\n", __FUNCTION__, dnsStatus);
+			return 0;
+		}
         if (udp->connect (ntpServerIPAddress, DEFAULT_NTP_PORT)) {
-            udp->onPacket (std::bind (&NTPClient::processPacket, this, _1));
+            udp->onPacket (std::bind (&NTPClient::processPacket, this, std::placeholders::_1));
             DEBUGLOG ("%s - Sending UDP packet\n", __FUNCTION__);
             if (sendNTPpacket (udp)) {
                 DEBUGLOG ("%s - NTP request sent\n", __FUNCTION__);
@@ -319,8 +335,9 @@ time_t NTPClient::getTime () {
 
 }
 
-void dumpNTPPacket (byte *data, size_t length) {
-    //byte *data = packet.data ();
+void dumpNTPPacket (uint8_t* data, size_t length) {
+    (void)data;
+    //uint8_t *data = packet.data ();
     //size_t length = packet.length ();
 
     for (size_t i = 0; i < length; i++) {
@@ -411,7 +428,7 @@ void NTPClient::processPacket (AsyncUDPPacket& packet) {
     DEBUGLOG ("\n");
 }
 
-void ICACHE_RAM_ATTR NTPClient::processRequestTimeout () {
+void IRAM_ATTR NTPClient::processRequestTimeout () {
     status = unsyncd;
     //timer1_disable ();
     responseTimer.detach ();
@@ -420,7 +437,7 @@ void ICACHE_RAM_ATTR NTPClient::processRequestTimeout () {
         onSyncEvent (noResponse);
 }
 
-void ICACHE_RAM_ATTR NTPClient::s_processRequestTimeout (void* arg) {
+void IRAM_ATTR NTPClient::s_processRequestTimeout (void* arg) {
     NTPClient* self = reinterpret_cast<NTPClient*>(arg);
     self->processRequestTimeout ();
 }
@@ -665,7 +682,7 @@ time_t NTPClient::getFirstSync () {
     return _firstSync;
 }
 
-bool NTPClient::summertime (int year, byte month, byte day, byte hour, byte weekday, byte tzHours)
+bool NTPClient::summertime (int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t weekday, uint8_t tzHours)
 // input parameters: "normal time" for year, month, day, hour, weekday and tzHours (0=UTC, 1=MEZ)
 {
     if (DST_ZONE_EU == _dstZone) {
@@ -708,6 +725,7 @@ bool NTPClient::summertime (int year, byte month, byte day, byte hour, byte week
 }
 
 boolean NTPClient::isSummerTimePeriod (time_t moment) {
+    (void)moment;
     return summertime (year (), month (), day (), hour (), weekday (), getTimeZone ());
 }
 

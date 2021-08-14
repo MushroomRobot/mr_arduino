@@ -1,12 +1,16 @@
 /*
 Copyright 2016 German Martin (gmag11@gmail.com). All rights reserved.
+
 Redistribution and use in source and binary forms, with or without modification, are
 permitted provided that the following conditions are met :
+
 1. Redistributions of source code must retain the above copyright notice, this list of
 conditions and the following disclaimer.
+
 2. Redistributions in binary form must reproduce the above copyright notice, this list
 of conditions and the following disclaimer in the documentation and / or other materials
 provided with the distribution.
+
 THIS SOFTWARE IS PROVIDED BY <COPYRIGHT HOLDER> ''AS IS'' AND ANY EXPRESS OR IMPLIED
 WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
 FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.IN NO EVENT SHALL <COPYRIGHT HOLDER> OR
@@ -16,16 +20,18 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSE
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 The views and conclusions contained in the software and documentation are those of the
 authors and should not be interpreted as representing official policies, either expressed
 or implied, of German Martin
 */
 /*
- Name:      NtpClientLib
- Created:   17/08/2016
- Author:    Germán Martín (gmag11@gmail.com)
+ Name:		NtpClientLib
+ Created:	17/08/2016
+ Author:	Germán Martín (gmag11@gmail.com)
  Maintainer:Germán Martín (gmag11@gmail.com)
- Editor:    http://www.visualmicro.com
+ Editor:	http://www.visualmicro.com
+
  Library to get system sync from a NTP server
 */
 
@@ -36,8 +42,6 @@ or implied, of German Martin
 
 #if defined ESP8266 || defined ESP32
 #include <functional>
-using namespace std;
-using namespace placeholders;
 
 extern "C" {
 #include "lwip/init.h"
@@ -45,6 +49,11 @@ extern "C" {
 #include "lwip/err.h"
 #include "lwip/dns.h"
 }
+
+#ifndef IRAM_ATTR
+#define IRAM_ATTR ICACHE_RAM_ATTR
+#endif
+
 #endif
 
 #include <TimeLib.h>
@@ -57,8 +66,8 @@ extern "C" {
 
 #define NETWORK_W5100           (1) // Arduino Ethernet Shield
 #define NETWORK_ENC28J60        (2) // Alternate Ethernet Shield
-#define NETWORK_WIFI101         (3) // WiFi Shield 101 or MKR1000
-#define NETWORK_ESP8266         (100) // ESP8266 boards, not for Arduino using AT firmware
+#define NETWORK_WIFI101			(3) // WiFi Shield 101 or MKR1000
+#define NETWORK_ESP8266			(100) // ESP8266 boards, not for Arduino using AT firmware
 #define NETWORK_ESP32           (101) // ESP32 boards
 
 #define DEFAULT_NTP_SERVER "pool.ntp.org" // Default international NTP server. I recommend you to select a closer server to get better accuracy
@@ -127,8 +136,8 @@ typedef enum NTPStatus {
 } NTPStatus_t; // Only for internal library use
 
 typedef enum DNSStatus {
-    DNS_IDLE = 0, // Idle state
-    DNS_REQUESTED = 1, // DNS resolution requested, waiting for response
+	DNS_IDLE = 0, // Idle state
+	DNS_REQUESTED = 1, // DNS resolution requested, waiting for response
     DNS_SOLVED = 2,
 } DNSStatus_t; // Only for internal library use//
 #endif
@@ -282,13 +291,13 @@ public:
     * Changes sync period not sync'd status.
     * @param[out] Interval while time is not first adjusted yet, in seconds.
     */
-    int getShortInterval ();
+    int	getShortInterval ();
 
     /**
     * Gets sync period.
     * @param[out] Interval for normal operation in seconds.
     */
-    int getLongInterval () { return getInterval (); }
+    int	getLongInterval () { return getInterval (); }
 
     /**
     * Set daylight time saving option.
@@ -390,7 +399,7 @@ public:
     * Get first successful synchronization time after boot.
     * @param[out] First sync time.
     */
-    time_t getFirstSync();
+    time_t getFirstSync ();
 
     /**
     * Get configured response timeout for NTP requests.
@@ -407,7 +416,7 @@ public:
     /**
     * Set a callback that triggers after a sync trial.
     * @param[in] function with void(NTPSyncEvent_t) or std::function<void(NTPSyncEvent_t)> (only for ESP8266)
-    *               NTPSyncEvent_t equals 0 is there is no error
+    *				NTPSyncEvent_t equals 0 is there is no error
     */
     void onNTPSyncEvent (onSyncEvent_t handler);
 
@@ -415,7 +424,7 @@ public:
     * True if current time is inside DST period (aka. summer time). False otherwise of if NTP object has DST
     * calculation disabled
     * @param[out] True = summertime enabled and time in summertime period
-    *             False = sumertime disabled or time ouside summertime period
+    *			  False = sumertime disabled or time ouside summertime period
     */
     boolean isSummerTime () {
         if (_daylight)
@@ -428,9 +437,16 @@ public:
     * True if given time is inside DST period (aka. summer time). False otherwise.
     * @param[in] time to make the calculation with
     * @param[out] True = time in summertime period
-    *             False = time ouside summertime period
+    *			  False = time ouside summertime period
     */
     boolean isSummerTimePeriod (time_t moment);
+	
+    /**
+    * Returns sync status
+    * @param[out] True = Device is sinchronized to NTP server
+    *			  False = Synchronization has not happened yet
+    */
+	boolean SyncStatus();
 
 protected:
 
@@ -477,16 +493,16 @@ protected:
     /**
     * Process internal state in case of a response timeout. If a response comes later is is asumed as non valid.
     */
-    void ICACHE_RAM_ATTR processRequestTimeout ();
+    void IRAM_ATTR processRequestTimeout ();
 
     /**
     * Static method for Ticker argument.
     */
-    static void ICACHE_RAM_ATTR s_processRequestTimeout (void* arg);
+    static void IRAM_ATTR s_processRequestTimeout (void* arg);
 
     static void s_dnsFound (const char *name, const ip_addr_t *ipaddr, void *callback_arg);
     void dnsFound (const ip_addr_t *ipaddr);
-    static void ICACHE_RAM_ATTR s_processDNSTimeout (void* arg);
+    static void IRAM_ATTR s_processDNSTimeout (void* arg);
     void processDNSTimeout ();
 
 #endif
@@ -507,7 +523,7 @@ protected:
     * @param[in] Time zone offset.
     * @param[out] true if date and time are inside summertime period.
     */
-    bool summertime (int year, byte month, byte day, byte hour, byte weekday, byte tzHours);
+    bool summertime (int year, uint8_t month, uint8_t day, uint8_t hour, uint8_t weekday, uint8_t tzHours);
 
     /**
     * Helper function to add leading 0 to hour, minutes or seconds if < 10.
