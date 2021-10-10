@@ -580,9 +580,7 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
     if (i==MAXSUBSCRIPTIONS) {
         DEBUG_PRINTLN(F("Not found sub #"));
 
-        if (topiclen < 30 || topiclen > 80) return NULL;
-
-        DEBUG_PRINT(F("topiclen: ")); DEBUG_PRINTLN(topiclen);
+        if (topiclen == 0) return NULL;
 
         uint8_t packet_id_len = 0;
         uint16_t packetid = 0;

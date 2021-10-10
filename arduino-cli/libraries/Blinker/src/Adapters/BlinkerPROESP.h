@@ -4,23 +4,14 @@
 #if (defined(ESP8266) || defined(ESP32))
 
 #if defined(ESP8266)
-    #include <ESP8266WiFi.h>
     #include <ESP8266mDNS.h>
+    #include <ESP8266WiFi.h>
     #include <ESP8266HTTPClient.h>
 
     #include <base64.h>
 #elif defined(ESP32)
-    #include <WiFi.h>
-
-    #if defined(ESP32)
-        extern "C" {
-            #include <esp_err.h>
-            #include <esp_wifi.h>
-            #include <esp_event.h>
-        }
-    #endif
-
     #include <ESPmDNS.h>
+    #include <WiFi.h>
     #include <HTTPClient.h>
 
     #include <base64.h>
