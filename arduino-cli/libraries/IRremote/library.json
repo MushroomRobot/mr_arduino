@@ -7,15 +7,11 @@
     "type": "git",
     "url": "https://github.com/z3t0/Arduino-IRremote.git"
   },
-  "version": "3.3.0",
+  "version": "2.8.0",
   "frameworks": "arduino",
-  "platforms": ["atmelavr", "atmelmegaavr", "atmelsam", "espressif8266", "espressif32", "ststm32"],
+  "platforms": "atmelavr",
   "authors" :
   [
-     {
-       "name":"Armin Joachimsmeyer",
-       "email":"armin.arduino@gmail.com"
-     },
      {
        "name":"Rafi Khan",
        "email":"zetoslab@gmail.com"

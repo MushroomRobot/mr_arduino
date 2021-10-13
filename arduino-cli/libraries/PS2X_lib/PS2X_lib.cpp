@@ -95,7 +95,7 @@ boolean PS2X::read_gamepad(boolean motor1, byte motor2) {
    if(motor2 != 0x00)
       motor2 = map(motor2,0,255,0x40,0xFF); //noting below 40 will make it spin
 
-   char dword[9] = {0x01,0x42,0,motor1,motor2,0,0,0,0};
+   byte dword[9] = {0x01,0x42,0,motor1,motor2,0,0,0,0};
    byte dword2[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
 
    // Try a few times to get valid data...
@@ -134,7 +134,7 @@ boolean PS2X::read_gamepad(boolean motor1, byte motor2) {
    }
 
 #ifdef PS2X_COM_DEBUG
-   Serial.println("OUT:IN");
+   Serial.print("OUT:IN ");
    for(int i=0; i<9; i++){
       Serial.print(dword[i], HEX);
       Serial.print(":");

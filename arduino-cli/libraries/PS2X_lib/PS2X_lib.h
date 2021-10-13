@@ -21,7 +21,7 @@
 *          NewButtonState(unsigned int);
 *          ButtonPressed(unsigned int);
 *          ButtonReleased(unsigned int);
-*        removed 'PS' from begining of ever function
+*        removed 'PS' from beginning of ever function
 *    1.0 found and fixed bug that wasn't configuring controller
 *        added ability to define pins
 *        added time checking to reconfigure controller if not polled enough
@@ -59,7 +59,7 @@
 *		Added Arduino 1.0 compatibility. 
 *    1.9
 *       Kurt - Added detection and recovery from dropping from analog mode, plus
-*       integreated Chipkit (pic32mx...) support
+*       integrated Chipkit (pic32mx...) support
 *
 *
 *
@@ -74,7 +74,7 @@ GNU General Public License for more details.
 
 // $$$$$$$$$$$$ DEBUG ENABLE SECTION $$$$$$$$$$$$$$$$
 // to debug ps2 controller, uncomment these two lines to print out debug to uart
-//#define PS2X_DEBUG
+#define PS2X_DEBUG
 //#define PS2X_COM_DEBUG
 
 #ifndef PS2X_lib_h

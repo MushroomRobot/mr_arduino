@@ -3,6 +3,15 @@
 
 #include <Arduino.h>
 
+#if defined ESP32
+    #define analogReadMax 4095
+    #define offset 100 
+#elif defined __AVR__
+    #define analogReadMax 1023
+    #define offset 25 
+#endif
+
+
 class QDPJoystick
 {
 private:

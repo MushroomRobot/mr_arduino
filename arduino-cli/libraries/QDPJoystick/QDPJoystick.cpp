@@ -7,8 +7,10 @@ void QDPJoystick::begin(int Enter_X, int Enter_Y) {
 
 int QDPJoystick::Angle1() {
   int angle = 0;
-  float abscissa = (map(analogRead(Enter_X_PIN), 1023, 0, (-512), 512));
-  float ordinate = (map(analogRead(Enter_Y_PIN), 0, 1023, 512, (-512)));
+  float abscissa = (map(analogRead(Enter_X_PIN), analogReadMax, 0, (-512), 512));
+  float ordinate = (map(analogRead(Enter_Y_PIN), 0, analogReadMax, 512, (-512)));
+  if(abs(abscissa)<offset && abs(ordinate)<offset)
+    return -1;
   if (0 < abscissa && 0 < ordinate) {
     angle = asin(ordinate / sqrt(sq(abscissa) + sq(ordinate))) / 3.14159 * 180;
   }
@@ -25,7 +27,7 @@ int QDPJoystick::Angle1() {
 }
 
 int QDPJoystick::Angle2() {
-  return sqrt(sq(map(analogRead(Enter_X_PIN), 1023, 0, (-512), 512)) + sq(map(analogRead(Enter_Y_PIN), 0, 1023, 512, (-512))));
+  return sqrt(sq(map(analogRead(Enter_X_PIN), analogReadMax, 0, (-512), 512)) + sq(map(analogRead(Enter_Y_PIN), 0, analogReadMax, 512, (-512))));
 }
 
 int QDPJoystick::Angle1_32() {

@@ -57,14 +57,6 @@
 //#define NRF52_DISABLE_INT
 #endif
 
-#if defined(ARDUINO_ARCH_NRF52840)
-#if defined __has_include
-#  if __has_include (<pinDefinitions.h>)
-#    include <pinDefinitions.h>
-#  endif
-#endif
-#endif
-
 /*!
   @brief   NeoPixel constructor when length, pin and pixel type are known
            at compile-time.
@@ -179,11 +171,6 @@ void Adafruit_NeoPixel::updateType(neoPixelType t) {
     if(newThreeBytesPerPixel != oldThreeBytesPerPixel) updateLength(numLEDs);
   }
 }
-
-#if defined(ARDUINO_ARCH_RP2040)
-extern "C" void rp2040Show(
-  uint16_t pin, uint8_t *pixels, uint32_t numBytes, uint8_t type);
-#endif
 
 #if defined(ESP8266)
 // ESP8266 show() is external to enforce ICACHE_RAM_ATTR execution
@@ -1150,13 +1137,9 @@ void Adafruit_NeoPixel::show(void) {
 
 #elif defined(__arm__)
 
-// ARM MCUs -- Teensy 3.0, 3.1, LC, Arduino Due, RP2040 -------------------
+// ARM MCUs -- Teensy 3.0, 3.1, LC, Arduino Due ---------------------------
 
-#if defined(ARDUINO_ARCH_RP2040)
-  // Use PIO
-  rp2040Show(pin, pixels, numBytes, is800KHz);
-
-#elif defined(TEENSYDUINO) && defined(KINETISK) // Teensy 3.0, 3.1, 3.2, 3.5, 3.6
+#if defined(TEENSYDUINO) && defined(KINETISK) // Teensy 3.0, 3.1, 3.2, 3.5, 3.6
 #define CYCLES_800_T0H  (F_CPU / 4000000)
 #define CYCLES_800_T1H  (F_CPU / 1250000)
 #define CYCLES_800      (F_CPU /  800000)
